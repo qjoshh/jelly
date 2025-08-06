@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Explore a stunning interactive 3D jellyfish simulation built with Three.js. Zoom, rotate, and learn fascinating facts about this mesmerizing creature in an immersive ocean environment.">
+    <meta name="keywords"
+        content="jellyfish simulation, Three.js, interactive 3D, marine biology, educational visualization, WebGL">
+    <meta name="author" content="Your Name or Organization">
+    <meta property="og:title" content="Interactive 3D Jellyfish Simulation">
+    <meta property="og:description"
+        content="Dive into a beautifully detailed Three.js jellyfish simulation with labeled anatomy and bizarre facts.">
+    <meta property="og:image"
+        content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHkyJTKIxLBrItM4eNA-QI-MTi9iZacFd3SmXOrpwYE35zfxeHGmwS7DZu59SdtnJCqtAFLcL5MGjwlpeEbnSAlmHISEUq_PFmPJ0F7vXoqepO88jbGlpDKxXPcOAcjJB_wXkDyZQaSGkJg280dsNeWvWZWPUhr8yqxhwvebpprZzJagLU8J09GSpEtpeo/s640/Jellyfish_from_Corpus_Christi.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.biobzarre.com/2025/07/15-mind-blowing-jellyfish-facts-from.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Interactive 3D Jellyfish Simulation">
+    <meta name="twitter:description"
+        content="Explore and learn about a stunningly realistic jellyfish in this immersive Three.js experience.">
+    <meta name="twitter:image"
+        content="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjHkyJTKIxLBrItM4eNA-QI-MTi9iZacFd3SmXOrpwYE35zfxeHGmwS7DZu59SdtnJCqtAFLcL5MGjwlpeEbnSAlmHISEUq_PFmPJ0F7vXoqepO88jbGlpDKxXPcOAcjJB_wXkDyZQaSGkJg280dsNeWvWZWPUhr8yqxhwvebpprZzJagLU8J09GSpEtpeo/s640/Jellyfish_from_Corpus_Christi.jpg">
+    <meta name="theme-color" content="#24a186">
+    <link rel="icon" type="image/jpg"
+        href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi1ewjrLdjqsX0WQacmD24Cu-fPAYQX5tlh4g0cJAn6I-Nb1TZCls_YkrJcYMLVqjRpRJATALZeZasj8PSmG5sRfvCbaX4LXuh7eVyaFu110UHqgVcuxoCmC0D82lUb4p8Ns0m1kXdtgqe9rdXTPLSVvk3clEV8VPp9SkGigbX3awAA_Y1Vfw3GBGz77WZz/s16000/BioBzarre.jpg" />
+
+    <title>Jellyfish Simulation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #mode-toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-button {
+            background: linear-gradient(135deg, #4b5bdc, #8b5cf6);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+            box-shadow: 0 4px 15px rgba(75, 91, 220, 0.3);
+        }
+
+        .mode-button.bizarre {
+            background: linear-gradient(135deg, #dc2626, #f87171);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .mode-button:hover {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #3b5bdc, #6b3cf6);
+            box-shadow: 0 6px 20px rgba(75, 91, 220, 0.5);
+        }
+
+        .mode-button.bizarre:hover {
+            background: linear-gradient(135deg, #b91c1c, #ef4444);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.5);
+        }
+
+        .label {
+            position: absolute;
+            background: linear-gradient(45deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3), inset 0 0 5px rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+        }
+
+        .label.bizarre {
+            background: linear-gradient(45deg, #7f1d1d, #dc2626);
+            border: 1px solid rgba(220, 38, 38, 0.5);
+            box-shadow: 0 0 10px rgba(220, 38, 38, 0.3), inset 0 0 5px rgba(255, 255, 255, 0.2);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .label:hover {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .label.bizarre:hover {
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .fact-box {
+            position: absolute;
+            background: linear-gradient(45deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 15px;
+            font-family: 'Arial', sans-serif;
+            font-size: 12px;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.2);
+            max-width: 200px;
+            text-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s;
+        }
+
+        .fact-box.bizarre {
+            background: linear-gradient(45deg, #7f1d1d, #dc2626);
+            border: 1px solid rgba(220, 38, 38, 0.5);
+            box-shadow: 0 0 12px rgba(220, 38, 38, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.2);
+        }
+
+        .fact-box:hover {
+            box-shadow: 0 0 18px rgba(59, 130, 246, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .fact-box.bizarre:hover {
+            box-shadow: 0 0 18px rgba(220, 38, 38, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .label-line {
+            position: absolute;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.8), rgba(59, 130, 246, 0.8));
+            height: 2px;
+            transform-origin: 0 0;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .label-line {
+                display: none !important;
+            }
+
+            .label {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+
+            .fact-box {
+                font-size: 10px;
+                padding: 8px 12px;
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mode-toggle">
+        <button class="mode-button" onclick="setMode('normal')">Normal Mode</button>
+        <button class="mode-button" onclick="setMode('label')">Label Mode</button>
+        <button class="mode-button" onclick="setMode('bizarre')">Bizarre Mode</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        let scene, camera, renderer, controls, jellyfish, particles, bubbles, mode = 'normal';
+        const labels = [], factBoxes = [], labelLines = [];
+        let raycaster, mouse, touchTarget = null, touchVelocity = 0, touchSpring = 0.1, touchDamping = 0.9;
+        let activeFactBox = null;
+        const bizarreFacts = {
+            "bell": [
+                "The bell contracts up to 100 times per minute in active species like moon jellyfish!",
+                "Some jellyfish bells, like the lion’s mane, grow as large as 7 feet in diameter!",
+                "The bell’s mesoglea is 95% water, resembling living Jell-O in texture!",
+                "Bell contractions create jet propulsion to move jellyfish through water!",
+                "The bell’s shape can be dome-like, saucer-shaped, or box-like in cubozoans!",
+                "Smaller jellyfish bells, like those of the crystal jelly, are only a few inches wide!",
+                "The bell’s pulsation rate varies with water temperature and oxygen levels!",
+                "Some bells are transparent, revealing internal structures like gonads!",
+                "The bell’s outer layer, the epidermis, protects against environmental stress!",
+                "Bells can be brightly colored, like the vibrant hues of the flower hat jelly!",
+                "The bell’s inner layer, the gastrodermis, aids in digestion and nutrient absorption!",
+                "Bells of box jellyfish are cube-shaped, giving them a distinct appearance!",
+                "The bell’s contractions are controlled by a simple nerve net!",
+                "Some jellyfish bells glow due to bioluminescence, like the crystal jelly!",
+                "The bell’s flexibility allows jellyfish to maneuver in turbulent waters!",
+                "Bells can deform slightly to navigate around obstacles in the ocean!",
+                "The bell’s size influences how much water is displaced during movement!",
+                "Some bells have frilled edges, increasing surface area for propulsion!",
+                "The bell’s thickness varies, with thicker bells in deep-sea species!",
+                "Bells can repair minor damage through cellular regeneration!",
+                "The bell’s pulsation conserves energy compared to constant swimming!",
+                "Some bells have patterns that camouflage them in open water!",
+                "The bell houses reproductive organs in many species!",
+                "Bells of deep-sea jellyfish withstand high pressure without collapsing!",
+                "The bell’s transparency aids in avoiding predators in some species!",
+                "Some bells are rigid enough to support symbiotic algae inside!",
+                "The bell’s contractions create water currents that draw in prey!",
+                "Bells can expand to take in water before a powerful contraction!",
+                "The bell’s surface can be smooth or textured depending on species!",
+                "Some bells have tiny sensory structures along their edges!",
+                "The bell’s mesoglea provides buoyancy to float effortlessly!",
+                "Bells of juvenile jellyfish are often smaller and less developed!",
+                "The bell’s shape affects how jellyfish respond to ocean currents!",
+                "Some bells are adorned with spots or stripes for species identification!",
+                "The bell’s pulsation can be synchronized in jellyfish swarms!",
+                "Bells can contract asymmetrically to change direction quickly!",
+                "The bell’s outer layer resists bacterial infections in some species!",
+                "Some bells are bioluminescent only at night to avoid detection!",
+                "The bell’s size correlates with the jellyfish’s age in many species!",
+                "Bells of box jellyfish have four distinct corners for stability!",
+                "The bell’s contractions slow in colder waters to conserve energy!",
+                "Some bells have a velum, a thin membrane aiding propulsion!",
+                "The bell’s elasticity allows it to withstand strong wave impacts!",
+                "Bells can shrink in response to food scarcity to save energy!",
+                "The bell’s nerve net coordinates movement without a brain!",
+                "Some bells are iridescent, reflecting light in colorful patterns!",
+                "The bell’s pulsation creates micro-currents studied for bioengineering!",
+                "Bells of some species can temporarily stop pulsating to drift!",
+                "The bell’s structure inspired designs for soft robotics!",
+                "Some bells contain symbiotic algae that provide energy via photosynthesis!"
+            ],
+            "tentacles": [
+                "Tentacles can extend up to 120 feet in lion’s mane jellyfish!",
+                "Nematocysts in tentacles fire in just 0.0006 seconds to capture prey!",
+                "Some jellyfish, like the lion’s mane, have over 800 tentacles!",
+                "Tentacles are lined with thousands of nematocysts for stinging!",
+                "Each nematocyst contains a coiled harpoon-like structure!",
+                "Tentacles can retract to reduce drag when not feeding!",
+                "Some tentacles are sticky to trap small plankton and debris!",
+                "Tentacles vary in thickness, from hair-like to rope-like!",
+                "The venom in tentacles paralyzes prey almost instantly!",
+                "Tentacles can regenerate if damaged or severed!",
+                "Some species have tentacles arranged in distinct clusters!",
+                "Tentacles extend and contract using muscle-like cells!",
+                "The number of tentacles increases as jellyfish grow!",
+                "Tentacles can sense chemical cues from nearby prey!",
+                "Some tentacles glow to attract prey in deep-sea environments!",
+                "Tentacles of box jellyfish are more rigid than in other species!",
+                "Tentacles can deliver venom potent enough to affect humans!",
+                "Some tentacles are transparent, making them hard to spot!",
+                "Tentacles move independently to maximize prey capture!",
+                "The length of tentacles varies with the jellyfish’s habitat!",
+                "Tentacles can entangle prey in a net-like formation!",
+                "Some tentacles have specialized cells for detecting vibrations!",
+                "Tentacles of deep-sea jellyfish are adapted for high pressure!",
+                "Tentacles can be shed to escape predators in some species!",
+                "The venom’s composition varies between jellyfish species!",
+                "Tentacles can stretch up to twice their resting length!",
+                "Some tentacles are brightly colored to warn predators!",
+                "Tentacles of cubozoans are arranged at the bell’s corners!",
+                "Tentacles can coil tightly to protect them when not in use!",
+                "Some tentacles have adhesive pads for extra grip on prey!",
+                "Tentacles regenerate faster in warmer water conditions!",
+                "The firing of nematocysts is triggered by physical contact!",
+                "Tentacles can remain active even after being detached!",
+                "Some tentacles are used for defense rather than feeding!",
+                "Tentacles of juvenile jellyfish are shorter but still potent!",
+                "Tentacles can detect water currents to position optimally!",
+                "Some species have tentacles that pulse rhythmically!",
+                "Tentacles of certain jellyfish are edible in some cultures!",
+                "The venom in tentacles targets the nervous system of prey!",
+                "Tentacles can be retracted into the bell in some species!",
+                "Some tentacles have bioluminescent tips to lure prey!",
+                "Tentacles are covered in a thin mucus layer to trap particles!",
+                "The arrangement of tentacles aids in species identification!",
+                "Tentacles can deliver multiple stings in rapid succession!",
+                "Some tentacles are specialized for capturing specific prey types!",
+                "Tentacles of deep-sea species are longer to cover more area!",
+                "Tentacles can be used to fend off rival jellyfish!",
+                "The firing speed of nematocysts is among the fastest in nature!",
+                "Tentacles of some jellyfish are nearly invisible in water!",
+                "Tentacles can grow back in as little as a week!"
+            ],
+            "oral_arms": [
+                "Oral arms can be longer than the jellyfish’s body in many species!",
+                "They act like a conveyor belt, funneling food to the mouth!",
+                "Oral arms can regenerate in just a few days after damage!",
+                "Oral arms are often frilly to increase surface area for feeding!",
+                "Some oral arms are equipped with small stinging cells!",
+                "Oral arms move rhythmically to guide prey toward the mouth!",
+                "The length of oral arms varies by species and habitat!",
+                "Oral arms can be brightly colored to attract specific prey!",
+                "Some oral arms are sticky to hold onto slippery prey!",
+                "Oral arms of moon jellyfish are shorter than their tentacles!",
+                "They can stretch to double their length during feeding!",
+                "Oral arms are softer and more flexible than tentacles!",
+                "Some species have four oral arms, others have eight!",
+                "Oral arms can trap microscopic plankton for feeding!",
+                "They help break down prey before it reaches the stomach!",
+                "Oral arms of box jellyfish are less prominent than tentacles!",
+                "Some oral arms have a feathery appearance for efficiency!",
+                "Oral arms can regenerate faster than other body parts!",
+                "They are lined with cilia to move food particles along!",
+                "Oral arms can retract when the jellyfish is not feeding!",
+                "Some oral arms are bioluminescent to attract prey at night!",
+                "Oral arms of deep-sea jellyfish are adapted for slow feeding!",
+                "They can entangle prey in a web-like structure!",
+                "Oral arms are often used to clear debris from the mouth!",
+                "Some species have oral arms that pulse independently!",
+                "Oral arms can be damaged and regrow without harming the jellyfish!",
+                "They are less venomous than tentacles in most species!",
+                "Oral arms of some jellyfish are nearly transparent!",
+                "They can sense chemical signals to locate food sources!",
+                "Oral arms help maintain balance during feeding!",
+                "Some oral arms are adorned with small sensory structures!",
+                "They can stretch to reach prey caught by tentacles!",
+                "Oral arms of juvenile jellyfish are less developed!",
+                "They play a role in digestion by secreting enzymes!",
+                "Oral arms can be used to fend off small predators!",
+                "Some oral arms have a layered structure for strength!",
+                "They can contract to protect the mouth when not feeding!",
+                "Oral arms of certain species are edible in culinary dishes!",
+                "They move in sync with the bell’s pulsations during feeding!",
+                "Oral arms can be shed to escape entanglement!",
+                "Some oral arms have tiny hooks to grip prey tightly!",
+                "They are more flexible in species that feed on soft prey!",
+                "Oral arms of deep-sea jellyfish are longer for sparse prey!",
+                "They can regenerate even after severe damage!",
+                "Oral arms help stabilize the jellyfish during strong currents!",
+                "Some oral arms are covered in mucus to trap food particles!",
+                "They can extend rapidly to capture nearby prey!",
+                "Oral arms of some species have unique patterns for identification!",
+                "They work in tandem with tentacles for efficient feeding!",
+                "Oral arms can remain functional even after partial loss!"
+            ],
+            "rhopalia": [
+                "Rhopalia contain primitive eyes that detect light and shadow!",
+                "They help jellyfish navigate ocean currents with precision!",
+                "Some rhopalia have crystal-like gravity sensors called statoliths!",
+                "Rhopalia are small sensory clusters along the bell’s edge!",
+                "Each rhopalium contains up to six simple eyes in box jellyfish!",
+                "Rhopalia detect changes in light intensity to avoid obstacles!",
+                "The gravity sensors help jellyfish maintain proper orientation!",
+                "Rhopalia are connected to the jellyfish’s nerve net!",
+                "Some rhopalia can sense chemical cues in the water!",
+                "Rhopalia enable box jellyfish to swim toward light sources!",
+                "The eyes in rhopalia lack true lenses but detect brightness!",
+                "Rhopalia are spaced evenly around the bell in most species!",
+                "Some rhopalia have pigment spots to shield light-sensitive cells!",
+                "Rhopalia help jellyfish respond to tidal movements!",
+                "The statoliths in rhopalia are made of calcium sulfate crystals!",
+                "Rhopalia can regenerate if damaged or lost!",
+                "Some jellyfish have up to 24 rhopalia around their bell!",
+                "Rhopalia allow jellyfish to sense up from down in water!",
+                "They play a role in coordinating swimming movements!",
+                "Rhopalia of box jellyfish are more complex than in other species!",
+                "Some rhopalia detect vibrations in the surrounding water!",
+                "Rhopalia help jellyfish avoid predators by sensing shadows!",
+                "The eyes in rhopalia are called ocelli in scientific terms!",
+                "Rhopalia can trigger escape responses in dangerous situations!",
+                "Some rhopalia are protected by a flap of tissue!",
+                "Rhopalia of deep-sea jellyfish are adapted for low light!",
+                "They help jellyfish align with ocean currents for migration!",
+                "Rhopalia contain neurons that process sensory information!",
+                "Some rhopalia have specialized cells for detecting pressure!",
+                "Rhopalia enable box jellyfish to hunt actively unlike other species!",
+                "The statoliths grow as the jellyfish ages!",
+                "Rhopalia can sense changes in water salinity!",
+                "Some rhopalia are bioluminescent in deep-sea species!",
+                "Rhopalia help jellyfish maintain position in turbulent waters!",
+                "The eyes in rhopalia can detect large objects in their path!",
+                "Rhopalia are critical for diurnal migration in some species!",
+                "Some rhopalia have a lens-like structure for crude vision!",
+                "Rhopalia can trigger pulsation changes based on light cues!",
+                "They are less developed in juvenile jellyfish!",
+                "Rhopalia of cubozoans are anchored by a stalk-like structure!",
+                "Some rhopalia sense temperature changes in the water!",
+                "Rhopalia help jellyfish avoid shallow waters during low tides!",
+                "The statoliths in rhopalia dissolve and reform during regeneration!",
+                "Rhopalia can detect polarized light in some species!",
+                "They contribute to the jellyfish’s ability to swarm effectively!",
+                "Rhopalia of some species are brightly colored for unknown reasons!",
+                "They help jellyfish maintain a stable swimming posture!",
+                "Rhopalia can sense nearby prey through water disturbances!",
+                "Some rhopalia are retracted when the jellyfish is at rest!",
+                "Rhopalia provide sensory feedback for coordinated movement!"
+            ],
+            "mesoglea": [
+                "Mesoglea acts like a hydrostatic skeleton for structural support!",
+                "It’s squishy yet firm, resembling a water balloon in consistency!",
+                "Mesoglea stores energy for sudden escapes from predators!",
+                "Mesoglea is composed of 95% water in most jellyfish species!",
+                "It contains collagen-like fibers for added strength!",
+                "Mesoglea provides buoyancy, helping jellyfish float effortlessly!",
+                "The thickness of mesoglea varies by species and habitat!",
+                "Mesoglea is flexible, allowing the bell to contract and expand!",
+                "It acts as a cushion against physical impacts in the ocean!",
+                "Mesoglea can store nutrients for use during food scarcity!",
+                "Some mesoglea is transparent, aiding in camouflage!",
+                "Mesoglea of deep-sea jellyfish is denser to withstand pressure!",
+                "It contains sparse cells called amoebocytes for repair!",
+                "Mesoglea helps distribute nutrients throughout the jellyfish!",
+                "The elasticity of mesoglea aids in efficient swimming!",
+                "Mesoglea can shrink in response to environmental stress!",
+                "It provides a lightweight structure for large jellyfish bells!",
+                "Mesoglea of some species hosts symbiotic algae for energy!",
+                "It can regenerate damaged areas through cellular migration!",
+                "Mesoglea’s composition varies slightly between species!",
+                "It acts as a shock absorber during turbulent water flows!",
+                "Mesoglea is less dense in surface-dwelling jellyfish!",
+                "It can store oxygen for short periods in low-oxygen waters!",
+                "Mesoglea’s flexibility inspired biomaterial research!",
+                "It helps maintain the bell’s shape during contractions!",
+                "Mesoglea of juvenile jellyfish is thinner and less developed!",
+                "It can resist bacterial infections in some species!",
+                "Mesoglea’s water content aids in thermoregulation!",
+                "It provides a medium for nerve signals to travel across!",
+                "Mesoglea of box jellyfish is firmer for structural stability!",
+                "It can deform temporarily to navigate tight spaces!",
+                "Mesoglea contains minimal blood vessels, relying on diffusion!",
+                "It helps jellyfish recover shape after strong currents!",
+                "Mesoglea’s texture varies from gelatinous to rubbery!",
+                "It can store small amounts of toxins for defense!",
+                "Mesoglea of some species is slightly bioluminescent!",
+                "It aids in maintaining internal pressure against external forces!",
+                "Mesoglea can expand to accommodate ingested prey!",
+                "It provides a scaffold for muscle-like cells in the bell!",
+                "Mesoglea of deep-sea species is more compact for strength!",
+                "It can repair itself without external energy sources!",
+                "Mesoglea’s water content reduces the need for heavy tissues!",
+                "It helps jellyfish maintain neutral buoyancy in water!",
+                "Mesoglea can be harvested for biomedical studies!",
+                "It supports the bell’s pulsation without rigid bones!",
+                "Mesoglea’s structure allows jellyfish to twist and turn!",
+                "It can absorb minor physical shocks without tearing!",
+                "Mesoglea of some species is edible in processed forms!",
+                "It contributes to the jellyfish’s overall resilience!",
+                "Mesoglea’s properties are studied for soft robotics applications!"
+            ]
+        };
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 5);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 2;
+            controls.maxDistance = 10;
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            scene.background = new THREE.Color(0x001122);
+            const ambientLight = new THREE.AmbientLight(0x112244, 0.5);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0x88aaff, 0.3);
+            directionalLight.position.set(0, 10, 10);
+            scene.add(directionalLight);
+
+            const pointLight = new THREE.PointLight(0x88aaff, 0.5, 50);
+            pointLight.position.set(0, 5, 5);
+            scene.add(pointLight);
+
+            createJellyfish();
+            createParticles();
+            createBubbles();
+            createLabels();
+
+            // Load saved state
+            loadState();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Save state on mode change or camera movement
+            controls.addEventListener('change', saveState);
+            renderer.domElement.addEventListener('mousedown', onTouchStart);
+            renderer.domElement.addEventListener('touchstart', onTouchStart);
+
+            animate();
+        }
+
+        function createJellyfish() {
+            const bellGeometry = new THREE.SphereGeometry(1, 64, 64, 0, Math.PI * 2, 0, Math.PI / 2);
+            bellGeometry.computeBoundingSphere();
+            const bellMaterial = new THREE.ShaderMaterial({
+                vertexShader: `
+          varying vec2 vUv;
+          varying vec3 vNormal;
+          uniform float time;
+          uniform float touchOffset;
+          void main() {
+            vUv = uv;
+            vNormal = normal;
+            vec3 pos = position;
+            float noise = sin(pos.y * 5.0 + time) * 0.05;
+            pos += vNormal * (noise + touchOffset);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+          }
+        `,
+                fragmentShader: `
+          varying vec2 vUv;
+          varying vec3 vNormal;
+          void main() {
+            vec3 color = mix(vec3(1.0, 0.3, 0.3), vec3(0.3, 1.0, 0.8), vUv.y);
+            float glow = pow(1.0 - dot(vNormal, vec3(0, 0, 1)), 2.0) * 0.5;
+            gl_FragColor = vec4(color + vec3(0.2, 0.4, 0.6) * glow, 0.8);
+          }
+        `,
+                transparent: true,
+                side: THREE.DoubleSide,
+                uniforms: { time: { value: 0 }, touchOffset: { value: 0 } }
+            });
+            const bell = new THREE.Mesh(bellGeometry, bellMaterial);
+            scene.add(bell);
+
+            const tentacleGroup = new THREE.Group();
+            for (let i = 0; i < 24; i++) {
+                const length = 2 + Math.random() * 2;
+                const tentacleGeometry = new THREE.CylinderGeometry(0.02, 0.01, length, 8, 16);
+                tentacleGeometry.computeBoundingSphere();
+                const tentacleMaterial = new THREE.ShaderMaterial({
+                    vertexShader: `
+            varying vec2 vUv;
+            uniform float time;
+            uniform float touchOffset;
+            void main() {
+              vUv = uv;
+              vec3 pos = position;
+              pos.x += sin(pos.y * 3.0 + time) * 0.1;
+              if (pos.y < -0.5) pos.x += touchOffset * 0.2;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+          `,
+                    fragmentShader: `
+            varying vec2 vUv;
+            void main() {
+              vec3 color = mix(vec3(0.3, 1.0, 0.8), vec3(0.1, 0.5, 0.8), vUv.y);
+              gl_FragColor = vec4(color, 0.7);
+            }
+          `,
+                    transparent: true,
+                    uniforms: { time: { value: 0 }, touchOffset: { value: 0 } }
+                });
+                const tentacle = new THREE.Mesh(tentacleGeometry, tentacleMaterial);
+                tentacle.position.set(
+                    Math.cos(i * Math.PI / 12) * 0.8,
+                    -length / 2,
+                    Math.sin(i * Math.PI / 12) * 0.8
+                );
+                tentacleGroup.add(tentacle);
+            }
+            scene.add(tentacleGroup);
+
+            const oralArmsGroup = new THREE.Group();
+            for (let i = 0; i < 6; i++) {
+                const armGeometry = new THREE.CylinderGeometry(0.05, 0.03, 2.5, 8, 16);
+                armGeometry.computeBoundingSphere();
+                const armMaterial = new THREE.ShaderMaterial({
+                    vertexShader: `
+            varying vec2 vUv;
+            uniform float time;
+            uniform float touchOffset;
+            void main() {
+              vUv = uv;
+              vec3 pos = position;
+              pos.x += sin(pos.y * 2.0 + time) * 0.15;
+              pos.z += cos(pos.y * 2.0 + time) * 0.1;
+              if (pos.y < -0.3) pos.x += touchOffset * 0.15;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+          `,
+                    fragmentShader: `
+            varying vec2 vUv;
+            void main() {
+              vec3 color = mix(vec3(0.5, 0.8, 1.0), vec3(0.1, 0.3, 0.8), vUv.y);
+              gl_FragColor = vec4(color, 0.7);
+            }
+          `,
+                    transparent: true,
+                    uniforms: { time: { value: 0 }, touchOffset: { value: 0 } }
+                });
+                const arm = new THREE.Mesh(armGeometry, armMaterial);
+                arm.position.set(
+                    Math.cos(i * Math.PI / 3) * 0.4,
+                    -1.25,
+                    Math.sin(i * Math.PI / 3) * 0.4
+                );
+                oralArmsGroup.add(arm);
+            }
+            scene.add(oralArmsGroup);
+
+            jellyfish = { bell, tentacles: tentacleGroup, oralArms: oralArmsGroup };
+        }
+
+        function createParticles() {
+            const particleGeometry = new THREE.BufferGeometry();
+            const particleCount = 1000;
+            const positions = new Float32Array(particleCount * 3);
+            const velocities = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 20;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+                velocities[i * 3] = (Math.random() - 0.5) * 0.01;
+                velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.01;
+                velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.01;
+            }
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particleGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+            particleGeometry.computeBoundingSphere();
+            const particleMaterial = new THREE.PointsMaterial({
+                color: 0x88aaff,
+                size: 0.05,
+                transparent: true,
+                opacity: 0.5
+            });
+            particles = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particles);
+        }
+
+        function createBubbles() {
+            const bubbleGeometry = new THREE.BufferGeometry();
+            const bubbleCount = 50;
+            const positions = new Float32Array(bubbleCount * 3);
+            const velocities = new Float32Array(bubbleCount * 3);
+            const wobble = new Float32Array(bubbleCount);
+            for (let i = 0; i < bubbleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 10;
+                positions[i * 3 + 1] = -5 + Math.random() * 5;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+                velocities[i * 3] = (Math.random() - 0.5) * 0.02;
+                velocities[i * 3 + 1] = 0.05 + Math.random() * 0.03;
+                velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.02;
+                wobble[i] = Math.random() * 2 * Math.PI;
+            }
+            bubbleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            bubbleGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+            bubbleGeometry.setAttribute('wobble', new THREE.BufferAttribute(wobble, 1));
+            bubbleGeometry.computeBoundingSphere();
+            const bubbleMaterial = new THREE.ShaderMaterial({
+                vertexShader: `
+          varying vec2 vUv;
+          uniform float time;
+          attribute float wobble;
+          void main() {
+            vUv = uv;
+            vec3 pos = position;
+            pos.x += sin(time + wobble) * 0.05;
+            pos.z += cos(time + wobble) * 0.05;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            gl_PointSize = 8.0;
+          }
+        `,
+                fragmentShader: `
+          void main() {
+            vec2 uv = gl_PointCoord - vec2(0.5);
+            if (length(uv) > 0.5) discard;
+            gl_FragColor = vec4(0.7, 0.8, 1.0, 0.7);
+          }
+        `,
+                transparent: true,
+                uniforms: { time: { value: 0 } }
+            });
+            bubbles = new THREE.Points(bubbleGeometry, bubbleMaterial);
+            scene.add(bubbles);
+        }
+
+        function createLabels() {
+            const labelData = [
+                { name: 'bell', position: new THREE.Vector3(0, 1, 0), offset: new THREE.Vector3(2.5, 0.5, 0), factIndex: Math.floor(Math.random() * bizarreFacts['bell'].length) },
+                { name: 'tentacles', position: new THREE.Vector3(0.8, -1.5, 0), offset: new THREE.Vector3(2.5, -0.5, 0), factIndex: Math.floor(Math.random() * bizarreFacts['tentacles'].length) },
+                { name: 'oral_arms', position: new THREE.Vector3(0.3, -1.25, 0), offset: new THREE.Vector3(2, -0.5, 0), factIndex: Math.floor(Math.random() * bizarreFacts['oral_arms'].length) },
+                { name: 'rhopalia', position: new THREE.Vector3(0.5, 0, 0.5), offset: new THREE.Vector3(2, 0.5, 0), factIndex: Math.floor(Math.random() * bizarreFacts['rhopalia'].length) },
+                { name: 'mesoglea', position: new THREE.Vector3(0, 0.3, 0), offset: new THREE.Vector3(2.5, -0.5, 0), factIndex: Math.floor(Math.random() * bizarreFacts['mesoglea'].length) }
+            ];
+
+            labelData.forEach(data => {
+                const label = document.createElement('div');
+                label.className = 'label';
+                label.textContent = data.name.replace('_', ' ');
+                document.body.appendChild(label);
+                const factBox = document.createElement('div');
+                factBox.className = 'fact-box';
+                factBox.textContent = bizarreFacts[data.name][data.factIndex];
+                document.body.appendChild(factBox);
+                const line = document.createElement('div');
+                line.className = 'label-line';
+                document.body.appendChild(line);
+                label.addEventListener('click', () => {
+                    if (mode === 'bizarre') {
+                        if (activeFactBox && activeFactBox !== factBox) {
+                            activeFactBox.style.display = 'none';
+                        }
+                        data.factIndex = (data.factIndex + 1) % bizarreFacts[data.name].length;
+                        factBox.textContent = bizarreFacts[data.name][data.factIndex];
+                        factBox.style.display = 'block';
+                        activeFactBox = factBox;
+                        saveState(); // Save state when fact changes
+                    }
+                });
+                labels.push({ element: label, position: data.position, offset: data.offset });
+                factBoxes.push({ element: factBox, name: data.name, factIndex: data.factIndex });
+                labelLines.push({ element: line, position: data.position, offset: data.offset });
+            });
+        }
+
+        function saveState() {
+            const state = {
+                camera: {
+                    position: camera.position.toArray(),
+                    rotation: camera.rotation.toArray()
+                },
+                mode: mode,
+                factIndices: factBoxes.map(fb => fb.factIndex)
+            };
+            localStorage.setItem('jellyfishSimulationState', JSON.stringify(state));
+        }
+
+        function loadState() {
+            const savedState = localStorage.getItem('jellyfishSimulationState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                camera.position.fromArray(state.camera.position);
+                camera.rotation.fromArray(state.camera.rotation);
+                controls.update();
+                if (state.mode) {
+                    setMode(state.mode);
+                }
+                factBoxes.forEach((fb, i) => {
+                    fb.factIndex = state.factIndices[i] || Math.floor(Math.random() * bizarreFacts[fb.name].length);
+                    fb.element.textContent = bizarreFacts[fb.name][fb.factIndex];
+                });
+            }
+        }
+
+        function onTouchStart(event) {
+            event.preventDefault();
+            const clientX = event.clientX || event.touches[0].clientX;
+            const clientY = event.clientY || event.touches[0].clientY;
+            mouse.x = (clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects([jellyfish.bell, ...jellyfish.tentacles.children, ...jellyfish.oralArms.children]);
+            if (intersects.length > 0) {
+                touchTarget = intersects[0].object;
+                touchVelocity = 0.1;
+            }
+        }
+
+        function updateLabels() {
+            const isMobile = window.innerWidth <= 768;
+            labels.forEach((label, i) => {
+                const targetPos = label.position.clone();
+                const offsetPos = isMobile ? label.position.clone() : label.position.clone().add(label.offset);
+                const screenTarget = targetPos.project(camera);
+                const screenOffset = offsetPos.project(camera);
+                const x1 = (screenTarget.x * 0.5 + 0.5) * window.innerWidth;
+                const y1 = (-screenTarget.y * 0.5 + 0.5) * window.innerHeight;
+                const x2 = (screenOffset.x * 0.5 + 0.5) * window.innerWidth;
+                const y2 = (-screenOffset.y * 0.5 + 0.5) * window.innerHeight;
+                label.element.style.left = `${x2}px`;
+                label.element.style.top = `${y2}px`;
+                label.element.style.display = mode !== 'normal' ? 'block' : 'none';
+                label.element.className = `label ${mode === 'bizarre' ? 'bizarre' : ''}`;
+                const line = labelLines[i].element;
+                const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+                line.style.width = `${length}px`;
+                line.style.left = `${x1}px`;
+                line.style.top = `${y1}px`;
+                line.style.transform = `rotate(${angle}deg)`;
+                line.style.display = mode !== 'normal' && !isMobile ? 'block' : 'none';
+                const factBox = factBoxes[i];
+                factBox.element.style.left = `${x2 + (isMobile ? 10 : 20)}px`;
+                factBox.element.style.top = `${y2 + (isMobile ? 10 : 20)}px`;
+                factBox.element.className = `fact-box ${mode === 'bizarre' ? 'bizarre' : ''}`;
+                factBox.element.style.display = mode === 'bizarre' && factBox.element === activeFactBox ? 'block' : 'none';
+            });
+        }
+
+        function setMode(newMode) {
+            mode = newMode;
+            document.querySelectorAll('.mode-button').forEach(button => {
+                button.className = `mode-button ${mode === 'bizarre' ? 'bizarre' : ''}`;
+            });
+            if (mode !== 'bizarre') {
+                activeFactBox = null;
+            }
+            factBoxes.forEach(factBox => {
+                factBox.element.style.display = mode === 'bizarre' && factBox.element === activeFactBox ? 'block' : 'none';
+            });
+            updateLabels();
+            saveState(); // Save state when mode changes
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = performance.now() * 0.001;
+
+            jellyfish.bell.scale.set(
+                1 + Math.sin(time) * 0.05,
+                1 + Math.cos(time) * 0.05,
+                1 + Math.sin(time) * 0.05
+            );
+            jellyfish.bell.material.uniforms.time.value = time;
+
+            if (touchTarget) {
+                const touchOffset = touchTarget.material.uniforms.touchOffset;
+                touchVelocity += -touchSpring * touchOffset.value;
+                touchVelocity *= touchDamping;
+                touchOffset.value += touchVelocity;
+                if (Math.abs(touchOffset.value) < 0.001 && Math.abs(touchVelocity) < 0.001) {
+                    touchOffset.value = 0;
+                    touchTarget = null;
+                }
+            }
+
+            jellyfish.tentacles.children.forEach(t => {
+                t.material.uniforms.time.value = time;
+            });
+            jellyfish.oralArms.children.forEach(a => {
+                a.material.uniforms.time.value = time;
+            });
+
+            const particlePositions = particles.geometry.attributes.position.array;
+            const particleVelocities = particles.geometry.attributes.velocity.array;
+            for (let i = 0; i < particlePositions.length; i += 3) {
+                particlePositions[i] += particleVelocities[i];
+                particlePositions[i + 1] += particleVelocities[i + 1];
+                particlePositions[i + 2] += particleVelocities[i + 2];
+                if (Math.abs(particlePositions[i]) > 10) particleVelocities[i] *= -1;
+                if (Math.abs(particlePositions[i + 1]) > 10) particleVelocities[i + 1] *= -1;
+                if (Math.abs(particlePositions[i + 2]) > 10) particleVelocities[i + 2] *= -1;
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
+
+            const bubblePositions = bubbles.geometry.attributes.position.array;
+            const bubbleVelocities = bubbles.geometry.attributes.velocity.array;
+            const bubbleWobble = bubbles.geometry.attributes.wobble.array;
+            for (let i = 0; i < bubblePositions.length; i += 3) {
+                bubblePositions[i] += bubbleVelocities[i] + Math.sin(time + bubbleWobble[i]) * 0.02;
+                bubblePositions[i + 1] += bubbleVelocities[i + 1];
+                bubblePositions[i + 2] += bubbleVelocities[i + 2] + Math.cos(time + bubbleWobble[i]) * 0.02;
+                if (bubblePositions[i + 1] > 5) {
+                    bubblePositions[i + 1] = -5;
+                    bubblePositions[i] = (Math.random() - 0.5) * 10;
+                    bubblePositions[i + 2] = (Math.random() - 0.5) * 10;
+                    bubbleWobble[i] = Math.random() * 2 * Math.PI;
+                }
+            }
+            bubbles.geometry.attributes.position.needsUpdate = true;
+            bubbles.material.uniforms.time.value = time;
+
+            controls.update();
+            updateLabels();
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
